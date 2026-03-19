@@ -17,6 +17,7 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
   const [selectedGroups, setSelectedGroups] = useState(new Set());
   const [tableScript, setTableScript] = useState('hiragana');
   const [threshold, setThreshold] = useState(80);
+  const [duration, setDuration] = useState(30);
 
   function toggleGroup(id) {
     setSelectedGroups(prev => {
@@ -41,6 +42,7 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
     onStart({
       mode,
       threshold,
+      duration,
       activeGroups: kanaGroups.filter(g => selectedGroups.has(g.id)),
     });
   }
@@ -108,6 +110,22 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
               onClick={() => setThreshold(t)}
             >
               {t}%
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Session duration */}
+      <div className="chip-section">
+        <div className="chip-group-label">Session length</div>
+        <div className="chips">
+          {[5, 10, 15, 20, 30, 45, 60].map(d => (
+            <button
+              key={d}
+              className={`chip ${duration === d ? 'chip-on' : ''}`}
+              onClick={() => setDuration(d)}
+            >
+              {d}m
             </button>
           ))}
         </div>

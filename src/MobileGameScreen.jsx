@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import './MobileGameScreen.css';
 
 const BOX_WEIGHTS = [10, 4, 2, 1, 1];
-const SESSION_GOAL = 30 * 60;
 
 function buildPool(activeGroups, mode) {
   const pool = [];
@@ -67,11 +66,11 @@ const KB_ROWS = [
 ];
 
 export default function MobileGameScreen({
-  mode, activeGroups, threshold,
+  mode, activeGroups, threshold, sessionGoal,
   elapsed, sessionDone,
   stats, setStats,
   boxes, setBoxes,
-  onBack, onSessionFinish, onSessionContinue,
+  onBack, onSessionFinish, onSessionContinue, onActivity,
 }) {
   const pool = useMemo(() => buildPool(activeGroups, mode), [activeGroups, mode]);
 
@@ -88,7 +87,7 @@ export default function MobileGameScreen({
     : Math.round(stats.correct / (stats.correct + stats.wrong) * 100);
 
   const passed = accuracy !== null && accuracy >= threshold;
-  const timeProgress = Math.min(elapsed / SESSION_GOAL, 1);
+  const timeProgress = Math.min(elapsed / sessionGoal, 1);
 
   function advance(nextBoxes, nextLastChar) {
     const next = weightedPick(pool, nextBoxes, nextLastChar);
@@ -102,6 +101,7 @@ export default function MobileGameScreen({
     if (feedback || sessionDone) return;
     const trimmed = input.trim().toLowerCase();
     if (!trimmed) return;
+    onActivity?.();
 
     const correct = current.romaji.includes(trimmed);
     const curBox = boxes.get(current.character) ?? 1;
@@ -131,6 +131,7 @@ export default function MobileGameScreen({
 
   function skip() {
     if (feedback || sessionDone) return;
+    onActivity?.();
     setFeedback({ text: `Answer: "${current.romaji[0]}"`, type: 'skip' });
     advanceTimer.current = setTimeout(() => advance(boxes, current.character), 1200);
   }
@@ -150,9 +151,9 @@ export default function MobileGameScreen({
       {/* Stats bar */}
       <div className="stats-bar">
         <button className="back-btn" onClick={onBack} title="Back to menu">←</button>
-        <div className="timer" style={{ color: elapsed >= SESSION_GOAL ? 'var(--correct)' : 'var(--text)' }}>
+        <div className="timer" style={{ color: elapsed >= sessionGoal ? 'var(--correct)' : 'var(--text)' }}>
           {formatTime(elapsed)}
-          <span className="timer-goal">/ 30:00</span>
+          <span className="timer-goal">/ {formatTime(sessionGoal)}</span>
         </div>
         <div className="stats">
           {accuracy !== null && (

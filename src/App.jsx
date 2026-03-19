@@ -4,10 +4,9 @@ import GameScreen from './GameScreen';
 import MobileGameScreen from './MobileGameScreen';
 import './App.css';
 
-const SESSION_GOAL = 30 * 60;
-
 export default function App() {
   const [gameConfig, setGameConfig] = useState(null);
+  const [sessionGoal, setSessionGoal] = useState(30 * 60);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   useEffect(() => {
@@ -23,37 +22,64 @@ export default function App() {
   const [boxes, setBoxes] = useState(() => new Map());
 
   const clockRef = useRef(null);
+  const inactivityRef = useRef(null);
 
-  function startClock() {
-    if (clockRef.current) return; // already running
+  function stopClock() {
+    clearInterval(clockRef.current);
+    clockRef.current = null;
+  }
+
+  function startClock(goal) {
+    if (clockRef.current) return;
+    const target = goal ?? sessionGoal;
     clockRef.current = setInterval(() => {
       setElapsed(e => {
-        if (e + 1 >= SESSION_GOAL) {
-          clearInterval(clockRef.current);
-          clockRef.current = null;
+        if (e + 1 >= target) {
+          stopClock();
           setSessionDone(true);
-          return SESSION_GOAL;
+          return target;
         }
         return e + 1;
       });
     }, 1000);
   }
 
-  useEffect(() => () => clearInterval(clockRef.current), []);
+  // Pause after 30s of inactivity; resume on interaction
+  function resetInactivityTimer() {
+    clearTimeout(inactivityRef.current);
+    inactivityRef.current = setTimeout(() => stopClock(), 30_000);
+  }
+
+  function handleActivity() {
+    if (!gameConfig || sessionDone) return;
+    if (!clockRef.current) startClock();
+    resetInactivityTimer();
+  }
+
+  useEffect(() => {
+    return () => {
+      stopClock();
+      clearTimeout(inactivityRef.current);
+    };
+  }, []);
 
   function handleStart(config) {
-    startClock();
+    const goal = config.duration * 60;
+    setSessionGoal(goal);
+    startClock(goal);
+    resetInactivityTimer();
     setGameConfig(config);
   }
 
   function handleBack() {
-    setGameConfig(null); // clock keeps running
+    stopClock(); // pause while in menu
+    clearTimeout(inactivityRef.current);
+    setGameConfig(null);
   }
 
   function handleSessionFinish() {
-    // Reset everything for a new session
-    clearInterval(clockRef.current);
-    clockRef.current = null;
+    stopClock();
+    clearTimeout(inactivityRef.current);
     setElapsed(0);
     setSessionDone(false);
     setStats({ correct: 0, wrong: 0, streak: 0, bestStreak: 0 });
@@ -64,6 +90,7 @@ export default function App() {
   function handleSessionContinue() {
     setSessionDone(false);
     startClock();
+    resetInactivityTimer();
   }
 
   function handleResetBoxes() {
@@ -77,6 +104,7 @@ export default function App() {
       mode={gameConfig.mode}
       activeGroups={gameConfig.activeGroups}
       threshold={gameConfig.threshold}
+      sessionGoal={sessionGoal}
       elapsed={elapsed}
       sessionDone={sessionDone}
       stats={stats}
@@ -86,6 +114,7 @@ export default function App() {
       onBack={handleBack}
       onSessionFinish={handleSessionFinish}
       onSessionContinue={handleSessionContinue}
+      onActivity={handleActivity}
     />
   ) : (
     <SetupScreen

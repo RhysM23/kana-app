@@ -1,12 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import SetupScreen from './SetupScreen';
 import GameScreen from './GameScreen';
+import MobileGameScreen from './MobileGameScreen';
 import './App.css';
 
 const SESSION_GOAL = 30 * 60;
 
 export default function App() {
   const [gameConfig, setGameConfig] = useState(null);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
   // Session state — persists across sub-sessions
   const [elapsed, setElapsed] = useState(0);
@@ -58,8 +66,10 @@ export default function App() {
     startClock();
   }
 
+  const GameComponent = isMobile ? MobileGameScreen : GameScreen;
+
   return gameConfig ? (
-    <GameScreen
+    <GameComponent
       mode={gameConfig.mode}
       activeGroups={gameConfig.activeGroups}
       threshold={gameConfig.threshold}

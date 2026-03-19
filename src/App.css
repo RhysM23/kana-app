@@ -516,6 +516,10 @@
   background: var(--accent);
 }
 
+.box-pip-mastered {
+  background: #fbbf24;
+}
+
 .kana-script-label {
   font-size: 0.65rem;
   font-weight: 700;

@@ -170,9 +170,12 @@ export default function GameScreen({
           <div className="kana-display">{current.character}</div>
           <div className="kana-script-label">{current.type}</div>
           <div className="box-indicator">
-            {[1,2,3,4,5].map(n => (
-              <span key={n} className={`box-pip ${(boxes.get(current.character) ?? 1) >= n ? 'box-pip-on' : ''}`} />
-            ))}
+            {[1,2,3,4,5].map(n => {
+              const lvl = boxes.get(current.character) ?? 1;
+              return (
+                <span key={n} className={`box-pip ${lvl >= n ? (lvl === 5 ? 'box-pip-mastered' : 'box-pip-on') : ''}`} />
+              );
+            })}
           </div>
         </div>
 

@@ -246,6 +246,23 @@
   opacity: 0.88;
 }
 
+.reset-btn {
+  width: 100%;
+  padding: 0.6rem;
+  background: transparent;
+  color: var(--muted);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.reset-btn:hover {
+  border-color: var(--wrong);
+  color: var(--wrong);
+}
+
 /* ── Game screen ── */
 
 /* Time progress bar */

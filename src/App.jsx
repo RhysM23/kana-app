@@ -66,6 +66,10 @@ export default function App() {
     startClock();
   }
 
+  function handleResetBoxes() {
+    setBoxes(new Map());
+  }
+
   const GameComponent = isMobile ? MobileGameScreen : GameScreen;
 
   return gameConfig ? (
@@ -89,6 +93,8 @@ export default function App() {
       elapsed={elapsed}
       sessionActive={elapsed > 0 && !sessionDone}
       sessionDone={sessionDone}
+      hasProgress={boxes.size > 0}
+      onResetBoxes={handleResetBoxes}
     />
   );
 }

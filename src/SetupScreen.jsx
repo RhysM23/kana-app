@@ -12,7 +12,7 @@ function formatTime(s) {
   return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 }
 
-export default function SetupScreen({ onStart, elapsed = 0, sessionActive = false, sessionDone = false }) {
+export default function SetupScreen({ onStart, elapsed = 0, sessionActive = false, sessionDone = false, hasProgress = false, onResetBoxes }) {
   const [mode, setMode] = useState('hiragana');
   const [selectedGroups, setSelectedGroups] = useState(new Set());
   const [tableScript, setTableScript] = useState('hiragana');
@@ -161,6 +161,12 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
       <button className="start-btn" disabled={charCount === 0} onClick={start}>
         {charCount === 0 ? 'Select groups to start' : `Start — ${charCount} characters`}
       </button>
+
+      {hasProgress && (
+        <button className="reset-btn" onClick={onResetBoxes}>
+          Reset weightings
+        </button>
+      )}
     </div>
   );
 }

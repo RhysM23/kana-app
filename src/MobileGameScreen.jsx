@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import './MobileGameScreen.css';
 
-const BOX_WEIGHTS = [5, 4, 3, 2, 1];
+const BOX_WEIGHTS = [10, 4, 2, 1, 1];
 const SESSION_GOAL = 30 * 60;
 
 function buildPool(activeGroups, mode) {
@@ -21,8 +21,19 @@ function buildPool(activeGroups, mode) {
 }
 
 function weightedPick(pool, boxes, lastChar) {
+  // Always exhaust never-seen characters before revisiting any seen card
+  const unseen = pool.filter(c => !boxes.has(c.character) && c.character !== lastChar);
+  if (unseen.length > 0) {
+    return unseen[Math.floor(Math.random() * unseen.length)];
+  }
+  // Edge case: only unseen card is the one just shown — show it anyway
+  const unseenAny = pool.filter(c => !boxes.has(c.character));
+  if (unseenAny.length > 0) return unseenAny[0];
+
+  // All seen — weighted pick favouring lower boxes
   const weights = pool.map(c => BOX_WEIGHTS[(boxes.get(c.character) ?? 1) - 1]);
   const total = weights.reduce((a, b) => a + b, 0);
+
   for (let attempt = 0; attempt < (pool.length > 1 ? 10 : 1); attempt++) {
     let rand = Math.random() * total;
     for (let i = 0; i < pool.length; i++) {

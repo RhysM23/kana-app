@@ -160,7 +160,7 @@ export default function GameScreen({
           className="time-progress-fill"
           style={{
             width: `${timeProgress * 100}%`,
-            background: elapsed >= SESSION_GOAL ? 'var(--correct)' : 'var(--accent)',
+            background: elapsed >= sessionGoal ? 'var(--correct)' : 'var(--accent)',
           }}
         />
       </div>

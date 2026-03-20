@@ -1,4 +1,51 @@
+/* Light theme (default) */
 :root {
+  --bg: #fdf2f5;
+  --surface: #fce8ee;
+  --card: #fff5f8;
+  --accent: #db2777;
+  --accent-dim: rgba(219, 39, 119, 0.10);
+  --text: #3d1a24;
+  --muted: #9d6070;
+  --border: #f0c4d0;
+  --correct: #16a34a;
+  --wrong: #dc2626;
+  --streak: #ea580c;
+}
+
+/* Dark theme — browser preference */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a0e14;
+    --surface: #251520;
+    --card: #2d1a25;
+    --accent: #f472b6;
+    --accent-dim: rgba(244, 114, 182, 0.15);
+    --text: #fce4ec;
+    --muted: #c084a0;
+    --border: #3d2030;
+    --correct: #86efac;
+    --wrong: #fca5a5;
+    --streak: #fdba74;
+  }
+}
+
+/* Manual override — takes precedence over media query */
+html[data-theme="light"] {
+  --bg: #fdf2f5;
+  --surface: #fce8ee;
+  --card: #fff5f8;
+  --accent: #db2777;
+  --accent-dim: rgba(219, 39, 119, 0.10);
+  --text: #3d1a24;
+  --muted: #9d6070;
+  --border: #f0c4d0;
+  --correct: #16a34a;
+  --wrong: #dc2626;
+  --streak: #ea580c;
+}
+
+html[data-theme="dark"] {
   --bg: #1a0e14;
   --surface: #251520;
   --card: #2d1a25;
@@ -204,7 +251,7 @@
 }
 
 .voiced-row .row-head {
-  color: #f9a8d4;
+  color: var(--accent);
 }
 
 .kana-cell {
@@ -452,6 +499,24 @@
 }
 
 .back-btn:hover {
+  border-color: var(--muted);
+  color: var(--text);
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.theme-toggle:hover {
   border-color: var(--muted);
   color: var(--text);
 }

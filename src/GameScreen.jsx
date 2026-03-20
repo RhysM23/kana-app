@@ -64,6 +64,7 @@ export default function GameScreen({
   stats, setStats,
   boxes, setBoxes,
   onBack, onSessionFinish, onSessionContinue, onActivity,
+  theme, toggleTheme,
 }) {
   const pool = useMemo(() => buildPool(activeGroups, mode), [activeGroups, mode]);
 
@@ -152,6 +153,9 @@ export default function GameScreen({
           <span className="stat-wrong">✗ {stats.wrong}</span>
           <span className="stat-streak">🔥 {stats.streak}</span>
         </div>
+        <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
+          {theme === 'dark' ? '☀' : '☾'}
+        </button>
       </div>
 
       {/* Time progress bar */}

@@ -9,6 +9,21 @@ export default function App() {
   const [sessionGoal, setSessionGoal] = useState(30 * 60);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
+  const [theme, setTheme] = useState(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored) return stored;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme(t => t === 'dark' ? 'light' : 'dark');
+  }
+
   useEffect(() => {
     const handler = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handler);
@@ -115,6 +130,8 @@ export default function App() {
       onSessionFinish={handleSessionFinish}
       onSessionContinue={handleSessionContinue}
       onActivity={handleActivity}
+      theme={theme}
+      toggleTheme={toggleTheme}
     />
   ) : (
     <SetupScreen
@@ -124,6 +141,8 @@ export default function App() {
       sessionDone={sessionDone}
       hasProgress={boxes.size > 0}
       onResetBoxes={handleResetBoxes}
+      theme={theme}
+      toggleTheme={toggleTheme}
     />
   );
 }

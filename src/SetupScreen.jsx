@@ -12,7 +12,7 @@ function formatTime(s) {
   return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 }
 
-export default function SetupScreen({ onStart, elapsed = 0, sessionActive = false, sessionDone = false, hasProgress = false, onResetBoxes }) {
+export default function SetupScreen({ onStart, elapsed = 0, sessionActive = false, sessionDone = false, hasProgress = false, onResetBoxes, theme, toggleTheme }) {
   const [mode, setMode] = useState('hiragana');
   const [selectedGroups, setSelectedGroups] = useState(new Set());
   const [tableScript, setTableScript] = useState('hiragana');
@@ -56,6 +56,9 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
             {sessionDone ? '✓ ' : ''}{formatTime(elapsed)}
           </div>
         )}
+        <button className="theme-toggle" onClick={toggleTheme} title="Toggle theme">
+          {theme === 'dark' ? '☀' : '☾'}
+        </button>
       </div>
 
       {/* Mode toggle */}

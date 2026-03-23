@@ -687,6 +687,29 @@ html[data-theme="dark"] {
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Word screen ── */
+
+.word-flashcard {
+  width: 240px;
+  height: 160px;
+  gap: 0.4rem;
+}
+
+.word-kana-display {
+  font-size: 3rem;
+  line-height: 1;
+  user-select: none;
+  color: var(--text);
+  letter-spacing: 0.05em;
+}
+
+.word-meaning {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
 /* ── Writing screen ── */
 
 .writing-prompt-row {

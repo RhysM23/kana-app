@@ -3,6 +3,7 @@ import SetupScreen from './SetupScreen';
 import GameScreen from './GameScreen';
 import MobileGameScreen from './MobileGameScreen';
 import WritingGameScreen from './WritingGameScreen';
+import WordGameScreen from './WordGameScreen';
 import './App.css';
 
 export default function App() {
@@ -115,12 +116,15 @@ export default function App() {
 
   const GameComponent = gameConfig?.quizType === 'writing'
     ? WritingGameScreen
-    : isMobile ? MobileGameScreen : GameScreen;
+    : gameConfig?.quizType === 'words'
+      ? WordGameScreen
+      : isMobile ? MobileGameScreen : GameScreen;
 
   return gameConfig ? (
     <GameComponent
       mode={gameConfig.mode}
       activeGroups={gameConfig.activeGroups}
+      activeWordGroups={gameConfig.activeWordGroups}
       threshold={gameConfig.threshold}
       sessionGoal={sessionGoal}
       elapsed={elapsed}

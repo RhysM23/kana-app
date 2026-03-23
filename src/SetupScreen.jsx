@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { kanaGroups, BASIC_GROUP_IDS, VOICED_GROUP_IDS } from './kana';
+import { wordGroups } from './words';
 
 const COLS = ['a', 'i', 'u', 'e', 'o'];
 
@@ -16,15 +17,25 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
   const [mode, setMode] = useState('hiragana');
   const [quizType, setQuizType] = useState('reading');
   const [selectedGroups, setSelectedGroups] = useState(new Set());
+  const [selectedWordGroups, setSelectedWordGroups] = useState(new Set());
   const [tableScript, setTableScript] = useState('hiragana');
   const [threshold, setThreshold] = useState(80);
   const [duration, setDuration] = useState(30);
 
+  const isWords = quizType === 'words';
+
   function toggleGroup(id) {
     setSelectedGroups(prev => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleWordGroup(id) {
+    setSelectedWordGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
   }
@@ -39,14 +50,34 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
     return count;
   }, [selectedGroups, mode]);
 
+  const wordCount = useMemo(() => {
+    let count = 0;
+    for (const group of wordGroups) {
+      if (!selectedWordGroups.has(group.id)) continue;
+      count += group.words.length;
+    }
+    return count;
+  }, [selectedWordGroups]);
+
+  const canStart = isWords ? wordCount > 0 : charCount > 0;
+
   function start() {
-    onStart({
-      mode,
-      quizType,
-      threshold,
-      duration,
-      activeGroups: kanaGroups.filter(g => selectedGroups.has(g.id)),
-    });
+    if (isWords) {
+      onStart({
+        quizType: 'words',
+        threshold,
+        duration,
+        activeWordGroups: wordGroups.filter(g => selectedWordGroups.has(g.id)),
+      });
+    } else {
+      onStart({
+        mode,
+        quizType,
+        threshold,
+        duration,
+        activeGroups: kanaGroups.filter(g => selectedGroups.has(g.id)),
+      });
+    }
   }
 
   return (
@@ -63,22 +94,13 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
         </button>
       </div>
 
-      {/* Mode toggle */}
-      <div className="segment-control">
-        {['hiragana', 'katakana', 'both'].map(m => (
-          <button
-            key={m}
-            className={mode === m ? 'active' : ''}
-            onClick={() => setMode(m)}
-          >
-            {m[0].toUpperCase() + m.slice(1)}
-          </button>
-        ))}
-      </div>
-
       {/* Quiz type toggle */}
       <div className="segment-control">
-        {[['reading', 'Reading — kana → romaji'], ['writing', 'Writing — romaji → kana']].map(([val, label]) => (
+        {[
+          ['reading', 'Reading'],
+          ['writing', 'Writing'],
+          ['words', 'Words'],
+        ].map(([val, label]) => (
           <button
             key={val}
             className={quizType === val ? 'active' : ''}
@@ -89,33 +111,68 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
         ))}
       </div>
 
-      {/* Group chips */}
-      <div className="chip-section">
-        <div className="chip-group-label">Basic</div>
-        <div className="chips">
-          {basicGroups.map(g => (
+      {/* Script mode toggle — only for kana modes */}
+      {!isWords && (
+        <div className="segment-control">
+          {['hiragana', 'katakana', 'both'].map(m => (
             <button
-              key={g.id}
-              className={`chip ${selectedGroups.has(g.id) ? 'chip-on' : ''}`}
-              onClick={() => toggleGroup(g.id)}
+              key={m}
+              className={mode === m ? 'active' : ''}
+              onClick={() => setMode(m)}
             >
-              {g.label}
+              {m[0].toUpperCase() + m.slice(1)}
             </button>
           ))}
         </div>
-        <div className="chip-group-label" style={{ marginTop: '0.5rem' }}>Voiced</div>
-        <div className="chips">
-          {voicedGroups.map(g => (
-            <button
-              key={g.id}
-              className={`chip ${selectedGroups.has(g.id) ? 'chip-on' : ''}`}
-              onClick={() => toggleGroup(g.id)}
-            >
-              {g.label}
-            </button>
-          ))}
+      )}
+
+      {/* Kana group chips */}
+      {!isWords && (
+        <div className="chip-section">
+          <div className="chip-group-label">Basic</div>
+          <div className="chips">
+            {basicGroups.map(g => (
+              <button
+                key={g.id}
+                className={`chip ${selectedGroups.has(g.id) ? 'chip-on' : ''}`}
+                onClick={() => toggleGroup(g.id)}
+              >
+                {g.label}
+              </button>
+            ))}
+          </div>
+          <div className="chip-group-label" style={{ marginTop: '0.5rem' }}>Voiced</div>
+          <div className="chips">
+            {voicedGroups.map(g => (
+              <button
+                key={g.id}
+                className={`chip ${selectedGroups.has(g.id) ? 'chip-on' : ''}`}
+                onClick={() => toggleGroup(g.id)}
+              >
+                {g.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Word category chips */}
+      {isWords && (
+        <div className="chip-section">
+          <div className="chip-group-label">Categories</div>
+          <div className="chips">
+            {wordGroups.map(g => (
+              <button
+                key={g.id}
+                className={`chip ${selectedWordGroups.has(g.id) ? 'chip-on' : ''}`}
+                onClick={() => toggleWordGroup(g.id)}
+              >
+                {g.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Accuracy goal */}
       <div className="chip-section">
@@ -149,53 +206,65 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
         </div>
       </div>
 
-      {/* Character count */}
-      <p className="char-count">{charCount} characters selected</p>
+      {/* Count */}
+      <p className="char-count">
+        {isWords
+          ? wordCount === 0 ? 'Select categories to start' : `${wordCount} words selected`
+          : charCount === 0 ? 'Select groups to start' : `${charCount} characters selected`
+        }
+      </p>
 
-      {/* Reference table */}
-      <div className="reference">
-        <div className="table-toggle">
-          {['hiragana', 'katakana'].map(s => (
-            <button
-              key={s}
-              className={tableScript === s ? 'active' : ''}
-              onClick={() => setTableScript(s)}
-            >
-              {s[0].toUpperCase() + s.slice(1)}
-            </button>
-          ))}
-        </div>
-        <div className="table-wrapper">
-          <table className="kana-table">
-            <thead>
-              <tr>
-                <th className="row-head"></th>
-                {COLS.map(c => <th key={c}>{c}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {kanaGroups.map(group => (
-                <tr key={group.id} className={group.voiced ? 'voiced-row' : ''}>
-                  <td className="row-head">{group.label}</td>
-                  {group.grid.map((char, i) => (
-                    <td key={i} className="kana-cell">
-                      {char && (
-                        <span className="kana-cell-char" title={char.r.join(' / ')}>
-                          {tableScript === 'hiragana' ? char.h : char.k}
-                        </span>
-                      )}
-                    </td>
-                  ))}
+      {/* Reference table — only for kana modes */}
+      {!isWords && (
+        <div className="reference">
+          <div className="table-toggle">
+            {['hiragana', 'katakana'].map(s => (
+              <button
+                key={s}
+                className={tableScript === s ? 'active' : ''}
+                onClick={() => setTableScript(s)}
+              >
+                {s[0].toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+          <div className="table-wrapper">
+            <table className="kana-table">
+              <thead>
+                <tr>
+                  <th className="row-head"></th>
+                  {COLS.map(c => <th key={c}>{c}</th>)}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {kanaGroups.map(group => (
+                  <tr key={group.id} className={group.voiced ? 'voiced-row' : ''}>
+                    <td className="row-head">{group.label}</td>
+                    {group.grid.map((char, i) => (
+                      <td key={i} className="kana-cell">
+                        {char && (
+                          <span className="kana-cell-char" title={char.r.join(' / ')}>
+                            {tableScript === 'hiragana' ? char.h : char.k}
+                          </span>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Start */}
-      <button className="start-btn" disabled={charCount === 0} onClick={start}>
-        {charCount === 0 ? 'Select groups to start' : `Start — ${charCount} characters`}
+      <button className="start-btn" disabled={!canStart} onClick={start}>
+        {!canStart
+          ? isWords ? 'Select categories to start' : 'Select groups to start'
+          : isWords
+            ? `Start — ${wordCount} words`
+            : `Start — ${charCount} characters`
+        }
       </button>
 
       {hasProgress && (

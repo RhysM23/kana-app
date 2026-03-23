@@ -14,6 +14,7 @@ function formatTime(s) {
 
 export default function SetupScreen({ onStart, elapsed = 0, sessionActive = false, sessionDone = false, hasProgress = false, onResetBoxes, theme, toggleTheme }) {
   const [mode, setMode] = useState('hiragana');
+  const [quizType, setQuizType] = useState('reading');
   const [selectedGroups, setSelectedGroups] = useState(new Set());
   const [tableScript, setTableScript] = useState('hiragana');
   const [threshold, setThreshold] = useState(80);
@@ -41,6 +42,7 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
   function start() {
     onStart({
       mode,
+      quizType,
       threshold,
       duration,
       activeGroups: kanaGroups.filter(g => selectedGroups.has(g.id)),
@@ -70,6 +72,19 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
             onClick={() => setMode(m)}
           >
             {m[0].toUpperCase() + m.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* Quiz type toggle */}
+      <div className="segment-control">
+        {[['reading', 'Reading — kana → romaji'], ['writing', 'Writing — romaji → kana']].map(([val, label]) => (
+          <button
+            key={val}
+            className={quizType === val ? 'active' : ''}
+            onClick={() => setQuizType(val)}
+          >
+            {label}
           </button>
         ))}
       </div>

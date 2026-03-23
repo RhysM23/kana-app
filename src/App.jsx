@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import SetupScreen from './SetupScreen';
 import GameScreen from './GameScreen';
 import MobileGameScreen from './MobileGameScreen';
+import WritingGameScreen from './WritingGameScreen';
 import './App.css';
 
 export default function App() {
@@ -112,7 +113,9 @@ export default function App() {
     setBoxes(new Map());
   }
 
-  const GameComponent = isMobile ? MobileGameScreen : GameScreen;
+  const GameComponent = gameConfig?.quizType === 'writing'
+    ? WritingGameScreen
+    : isMobile ? MobileGameScreen : GameScreen;
 
   return gameConfig ? (
     <GameComponent

@@ -686,3 +686,130 @@ html[data-theme="dark"] {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Writing screen ── */
+
+.writing-prompt-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.writing-prompt-card {
+  width: 140px;
+  height: 140px;
+}
+
+.writing-romaji-display {
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+  letter-spacing: 0.02em;
+}
+
+.writing-answer-card {
+  width: 140px;
+  height: 140px;
+  transition: opacity 0.2s;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.writing-answer-hidden {
+  opacity: 0.35;
+}
+
+.writing-answer-visible {
+  opacity: 1;
+}
+
+.writing-answer-placeholder {
+  font-size: 3.5rem;
+  font-weight: 300;
+  color: var(--border);
+  line-height: 1;
+}
+
+.writing-listen-btn {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.7rem;
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 300px;
+  height: 300px;
+}
+
+.writing-canvas {
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  cursor: crosshair;
+  touch-action: none;
+  display: block;
+}
+
+.canvas-clear-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.canvas-clear-btn:hover {
+  border-color: var(--wrong);
+  color: var(--wrong);
+}
+
+.writing-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.writing-correct-btn {
+  padding: 0.65rem 1.4rem;
+  background: var(--correct);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.writing-correct-btn:hover {
+  opacity: 0.85;
+}
+
+.writing-wrong-btn {
+  padding: 0.65rem 1.4rem;
+  background: transparent;
+  color: var(--wrong);
+  border: 1.5px solid var(--wrong);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.writing-wrong-btn:hover {
+  background: var(--wrong);
+  color: #fff;
+}

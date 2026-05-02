@@ -139,11 +139,13 @@ export default function MobileGameScreen({
 
   function handleKey(key) {
     if (feedback || sessionDone) return;
+    navigator.vibrate?.(18);
     setInput(prev => prev + key);
   }
 
   function handleBackspace() {
     if (feedback || sessionDone) return;
+    navigator.vibrate?.(10);
     setInput(prev => prev.slice(0, -1));
   }
 

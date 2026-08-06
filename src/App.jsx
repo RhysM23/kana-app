@@ -4,6 +4,7 @@ import GameScreen from './GameScreen';
 import MobileGameScreen from './MobileGameScreen';
 import WritingGameScreen from './WritingGameScreen';
 import WordGameScreen from './WordGameScreen';
+import ProgressionGameScreen from './ProgressionGameScreen';
 import './App.css';
 
 export default function App() {
@@ -81,6 +82,11 @@ export default function App() {
   }, []);
 
   function handleStart(config) {
+    // Progression modes are mastery-gated, not timed — no clock.
+    if (config.quizType === 'ladder' || config.quizType === 'lookalikes') {
+      setGameConfig(config);
+      return;
+    }
     const goal = config.duration * 60;
     setSessionGoal(goal);
     startClock(goal);
@@ -114,14 +120,20 @@ export default function App() {
     setBoxes(new Map());
   }
 
-  const GameComponent = gameConfig?.quizType === 'writing'
-    ? WritingGameScreen
-    : gameConfig?.quizType === 'words'
-      ? WordGameScreen
-      : isMobile ? MobileGameScreen : GameScreen;
+  const isProgression = gameConfig?.quizType === 'ladder' || gameConfig?.quizType === 'lookalikes';
+
+  const GameComponent = isProgression
+    ? ProgressionGameScreen
+    : gameConfig?.quizType === 'writing'
+      ? WritingGameScreen
+      : gameConfig?.quizType === 'words'
+        ? WordGameScreen
+        : isMobile ? MobileGameScreen : GameScreen;
 
   return gameConfig ? (
     <GameComponent
+      quizType={gameConfig.quizType}
+      isMobile={isMobile}
       mode={gameConfig.mode}
       activeGroups={gameConfig.activeGroups}
       activeWordGroups={gameConfig.activeWordGroups}

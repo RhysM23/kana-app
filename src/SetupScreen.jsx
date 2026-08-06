@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { kanaGroups, BASIC_GROUP_IDS, VOICED_GROUP_IDS } from './kana';
 import { wordGroups } from './words';
+import { buildLookalikeGroups } from './progression';
 
 const COLS = ['a', 'i', 'u', 'e', 'o'];
 
@@ -23,6 +24,9 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
   const [duration, setDuration] = useState(30);
 
   const isWords = quizType === 'words';
+  const isLadder = quizType === 'ladder';
+  const isLookalikes = quizType === 'lookalikes';
+  const isProgression = isLadder || isLookalikes;
 
   function toggleGroup(id) {
     setSelectedGroups(prev => {
@@ -59,7 +63,11 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
     return count;
   }, [selectedWordGroups]);
 
-  const canStart = isWords ? wordCount > 0 : charCount > 0;
+  const lookalikeCount = useMemo(() => buildLookalikeGroups(mode).length, [mode]);
+
+  const canStart = isWords ? wordCount > 0
+    : isLookalikes ? lookalikeCount > 0
+    : charCount > 0;
 
   function start() {
     if (isWords) {
@@ -69,6 +77,8 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
         duration,
         activeWordGroups: wordGroups.filter(g => selectedWordGroups.has(g.id)),
       });
+    } else if (isLookalikes) {
+      onStart({ quizType: 'lookalikes', mode });
     } else {
       onStart({
         mode,
@@ -95,11 +105,13 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
       </div>
 
       {/* Quiz type toggle */}
-      <div className="segment-control">
+      <div className="segment-control quiz-type-control">
         {[
           ['reading', 'Reading'],
           ['writing', 'Writing'],
           ['words', 'Words'],
+          ['ladder', 'Ladder'],
+          ['lookalikes', 'Look-alikes'],
         ].map(([val, label]) => (
           <button
             key={val}
@@ -127,8 +139,13 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
       )}
 
       {/* Kana group chips */}
-      {!isWords && (
+      {!isWords && !isLookalikes && (
         <div className="chip-section">
+          {isLadder && (
+            <p className="prog-hint">
+              Master each row (3 correct in a row per character) to unlock the next. Pick which rows to include.
+            </p>
+          )}
           <div className="chip-group-label">Basic</div>
           <div className="chips">
             {basicGroups.map(g => (
@@ -174,43 +191,60 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
         </div>
       )}
 
-      {/* Accuracy goal */}
-      <div className="chip-section">
-        <div className="chip-group-label">Accuracy goal</div>
-        <div className="chips">
-          {[70, 75, 80, 85, 90].map(t => (
-            <button
-              key={t}
-              className={`chip ${threshold === t ? 'chip-on' : ''}`}
-              onClick={() => setThreshold(t)}
-            >
-              {t}%
-            </button>
-          ))}
+      {/* Look-alikes info */}
+      {isLookalikes && (
+        <div className="chip-section">
+          <p className="prog-hint">
+            Groups of easily-confused kana. Master each set (3 correct in a row per character) to unlock the next.
+          </p>
         </div>
-      </div>
+      )}
 
-      {/* Session duration */}
-      <div className="chip-section">
-        <div className="chip-group-label">Session length</div>
-        <div className="chips">
-          {[5, 10, 15, 20, 30, 45, 60].map(d => (
-            <button
-              key={d}
-              className={`chip ${duration === d ? 'chip-on' : ''}`}
-              onClick={() => setDuration(d)}
-            >
-              {d}m
-            </button>
-          ))}
+      {/* Accuracy goal — timed modes only */}
+      {!isProgression && (
+        <div className="chip-section">
+          <div className="chip-group-label">Accuracy goal</div>
+          <div className="chips">
+            {[70, 75, 80, 85, 90].map(t => (
+              <button
+                key={t}
+                className={`chip ${threshold === t ? 'chip-on' : ''}`}
+                onClick={() => setThreshold(t)}
+              >
+                {t}%
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Session duration — timed modes only */}
+      {!isProgression && (
+        <div className="chip-section">
+          <div className="chip-group-label">Session length</div>
+          <div className="chips">
+            {[5, 10, 15, 20, 30, 45, 60].map(d => (
+              <button
+                key={d}
+                className={`chip ${duration === d ? 'chip-on' : ''}`}
+                onClick={() => setDuration(d)}
+              >
+                {d}m
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Count */}
       <p className="char-count">
         {isWords
           ? wordCount === 0 ? 'Select categories to start' : `${wordCount} words selected`
-          : charCount === 0 ? 'Select groups to start' : `${charCount} characters selected`
+          : isLookalikes
+            ? `${lookalikeCount} look-alike groups`
+            : isLadder
+              ? selectedGroups.size === 0 ? 'Select rows to start' : `${selectedGroups.size} rows · ${charCount} characters`
+              : charCount === 0 ? 'Select groups to start' : `${charCount} characters selected`
         }
       </p>
 
@@ -260,9 +294,12 @@ export default function SetupScreen({ onStart, elapsed = 0, sessionActive = fals
       {/* Start */}
       <button className="start-btn" disabled={!canStart} onClick={start}>
         {!canStart
-          ? isWords ? 'Select categories to start' : 'Select groups to start'
-          : isWords
-            ? `Start — ${wordCount} words`
+          ? isWords ? 'Select categories to start'
+            : isLadder ? 'Select rows to start'
+            : 'Select groups to start'
+          : isWords ? `Start — ${wordCount} words`
+            : isLookalikes ? `Start look-alikes — ${lookalikeCount} groups`
+            : isLadder ? `Start ladder — ${selectedGroups.size} rows`
             : `Start — ${charCount} characters`
         }
       </button>

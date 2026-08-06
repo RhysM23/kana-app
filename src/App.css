@@ -130,6 +130,17 @@ html[data-theme="dark"] {
   color: #fff;
 }
 
+/* Quiz-type control wraps when it gets crowded (5 options) */
+.quiz-type-control {
+  flex-wrap: wrap;
+}
+
+.quiz-type-control button {
+  flex: 1 1 28%;
+  min-width: 92px;
+  font-size: 0.9rem;
+}
+
 /* Chips */
 .chip-section {
   display: flex;
@@ -308,6 +319,93 @@ html[data-theme="dark"] {
 .reset-btn:hover {
   border-color: var(--wrong);
   color: var(--wrong);
+}
+
+/* Progression hint text (setup) */
+.prog-hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.4;
+  margin: 0 0 0.25rem;
+}
+
+/* ── Progression screen ── */
+
+.prog-group-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  min-width: 0;
+}
+
+.prog-group-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.prog-group-sub {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.prog-mastered {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--correct);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.prog-tracker {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  max-width: 340px;
+}
+
+.prog-chip {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.prog-chip-active {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--accent-dim);
+}
+
+.prog-chip-mastered {
+  border-color: var(--correct);
+  color: var(--correct);
+  background: transparent;
+}
+
+.prog-overall-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
 }
 
 /* ── Game screen ── */

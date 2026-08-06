@@ -37,6 +37,24 @@ function pickNext(cards, counts, lastChar) {
   return remaining.find(c => c.character !== lastChar) || remaining[0];
 }
 
+// Deterministic shuffle seeded from a string, so it's pure (no Math.random in
+// render) yet scrambles the tracker order away from the canonical a-i-u-e-o.
+function seededShuffle(arr, seedStr) {
+  let state = 0;
+  for (let i = 0; i < seedStr.length; i++) state = (state * 31 + seedStr.charCodeAt(i)) | 0;
+  state = state || 1;
+  const rand = () => {
+    state ^= state << 13; state ^= state >>> 17; state ^= state << 5;
+    return (state >>> 0) / 4294967296;
+  };
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 const KB_ROWS = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
   ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
@@ -73,6 +91,14 @@ export default function ProgressionGameScreen({
   const group = groups[groupIndex];
   const cards = group?.cards ?? [];
   const masteredInGroup = cards.filter(c => (counts.get(c.character) ?? 0) >= NEEDED).length;
+
+  // Tracker display order is shuffled per group so the chip positions don't map
+  // to a memorised sequence (e.g. a-i-u-e-o) — otherwise you could read the
+  // answer off the tracker instead of recognising the kana.
+  const trackerOrder = useMemo(
+    () => seededShuffle(group?.cards ?? [], group?.id ?? ''),
+    [group],
+  );
   const groupsCleared = groupIndex; // groups fully behind us
   const overallProgress = groups.length ? groupsCleared / groups.length : 0;
   const nextGroup = groups[groupIndex + 1];
@@ -181,12 +207,12 @@ export default function ProgressionGameScreen({
 
   const groupTracker = (
     <div className="prog-tracker">
-      {cards.map(c => {
-        const n = counts.get(c.character) ?? 0;
-        const cls = n >= NEEDED ? 'prog-chip-mastered'
-          : c.character === current?.character ? 'prog-chip-active' : '';
+      {trackerOrder.map(c => {
+        const mastered = (counts.get(c.character) ?? 0) >= NEEDED;
         return (
-          <span key={c.character} className={`prog-chip ${cls}`}>{c.character}</span>
+          <span key={c.character} className={`prog-chip ${mastered ? 'prog-chip-mastered' : ''}`}>
+            {c.character}
+          </span>
         );
       })}
     </div>

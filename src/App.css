@@ -390,12 +390,6 @@ html[data-theme="dark"] {
   transition: border-color 0.2s, color 0.2s, background 0.2s;
 }
 
-.prog-chip-active {
-  border-color: var(--accent);
-  color: var(--text);
-  background: var(--accent-dim);
-}
-
 .prog-chip-mastered {
   border-color: var(--correct);
   color: var(--correct);
